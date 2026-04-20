@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel · Kelly Barbosa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="admin-body">
+
+  <div class="login-screen" id="loginScreen">
+    <div class="login-card">
+      <h1 class="brand-name">Kelly Barbosa</h1>
+      <p>Painel de Gestão</p>
+      <form id="loginForm">
+        <input type="email" id="email" placeholder="E-mail" required autocomplete="username" />
+        <input type="password" id="password" placeholder="Senha" required autocomplete="current-password" />
+        <button type="submit" class="btn-primary">Entrar</button>
+        <p class="error" id="loginError"></p>
+      </form>
+    </div>
+  </div>
+
+  <div class="admin-app" id="adminApp" hidden>
+    <header class="admin-header">
+      <h1>Kelly Barbosa</h1>
+      <button class="btn-ghost" id="logoutBtn">Sair</button>
+    </header>
+    <nav class="admin-tabs">
+      <button class="tab active" data-tab="pedidos">📬 Pedidos <span id="badgePedidos" class="cart-count" style="position:static;margin-left:6px">0</span></button>
+      <button class="tab" data-tab="produtos">🧁 Produtos</button>
+    </nav>
+
+    <section class="tab-content" id="tab-pedidos">
+      <div class="orders" id="ordersList">
+        <p class="loading">Carregando pedidos...</p>
+      </div>
+    </section>
+
+    <section class="tab-content" id="tab-produtos" hidden>
+      <button class="btn-primary" id="addProductBtn">+ Novo Produto</button>
+      <div class="products-admin" id="productsAdmin" style="margin-top:20px">
+        <p class="loading">Carregando produtos...</p>
+      </div>
+    </section>
+
+    <div class="modal" id="productModal">
+      <div class="modal-content">
+        <button class="close-btn" id="closeProduct" aria-label="Fechar">×</button>
+        <h3 id="productModalTitle">Novo Produto</h3>
+        <form id="productForm">
+          <input type="hidden" id="productId" />
+          <label>Nome <input type="text" id="productNome" required /></label>
+          <label>Descrição <textarea id="productDescricao" rows="2" placeholder="Ex: Bolo de chocolate com recheio de brigadeiro"></textarea></label>
+          <label>Categoria
+            <select id="productCategoria">
+              <option>Bolos</option>
+              <option>Doces</option>
+              <option>Papelaria</option>
+              <option>Outros</option>
+            </select>
+          </label>
+          <label>Preço (R$) <input type="number" step="0.01" min="0" id="productPreco" required /></label>
+          <label>Foto do produto (opcional)
+            <input type="file" id="productFoto" accept="image/*" />
+          </label>
+          <img id="productPreview" class="preview" hidden alt="pré-visualização" />
+          <label class="checkbox">
+            <input type="checkbox" id="productAtivo" checked /> Disponível no cardápio
+          </label>
+          <button type="submit" class="btn-primary" id="saveProductBtn">Salvar</button>
+          <p class="error" id="productError"></p>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
