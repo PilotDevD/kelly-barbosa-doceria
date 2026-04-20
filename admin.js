@@ -38,16 +38,30 @@ function showApp() {
 
 $('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  $('loginError').textContent = '';
-  const { error } = await supabaseClient.auth.signInWithPassword({
-    email: $('email').value.trim(),
-    password: $('password').value
-  });
-  if (error) {
-    $('loginError').textContent = 'E-mail ou senha incorretos.';
-    return;
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  const errorEl = $('loginError');
+  errorEl.textContent = '';
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Entrando...';
+
+  try {
+    if (typeof supabaseClient === 'undefined') {
+      throw new Error('Supabase não carregou. Verifique sua conexão e recarregue a página.');
+    }
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email: $('email').value.trim(),
+      password: $('password').value
+    });
+    if (error) throw error;
+    if (!data?.session) throw new Error('Login falhou sem sessão.');
+    showApp();
+  } catch (err) {
+    console.error('[login] erro:', err);
+    errorEl.textContent = err.message || 'Não foi possível entrar. Tente novamente.';
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Entrar';
   }
-  showApp();
 });
 
 $('logoutBtn').addEventListener('click', async () => {
