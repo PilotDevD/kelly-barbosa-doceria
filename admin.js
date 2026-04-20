@@ -36,33 +36,49 @@ function showApp() {
   try { subscribeRealtime(); } catch (e) { console.warn('[realtime]', e); }
 }
 
-$('loginForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const submitBtn = e.target.querySelector('button[type="submit"]');
+async function handleLogin(ev) {
+  if (ev && ev.preventDefault) ev.preventDefault();
+  if (window.__loginInProgress) return;
+  window.__loginInProgress = true;
+
   const errorEl = $('loginError');
-  errorEl.textContent = '';
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'Entrando...';
+  const submitBtn = document.querySelector('#loginForm button[type="submit"]');
+  errorEl.style.color = '#DC2626';
+  errorEl.textContent = '[1/4] iniciando...';
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Entrando...'; }
 
   try {
-    if (typeof supabaseClient === 'undefined') {
-      throw new Error('Supabase não carregou. Verifique sua conexão e recarregue a página.');
-    }
-    const { data, error } = await supabaseClient.auth.signInWithPassword({
-      email: $('email').value.trim(),
-      password: $('password').value
-    });
-    if (error) throw error;
-    if (!data?.session) throw new Error('Login falhou sem sessão.');
-    showApp();
+    errorEl.textContent = '[2/4] verificando supabase...';
+    if (typeof window.supabase === 'undefined') throw new Error('SDK supabase-js não carregou (CDN bloqueado?).');
+    if (typeof supabaseClient === 'undefined') throw new Error('supabaseClient indefinido — verifique supabase.js.');
+
+    errorEl.textContent = '[3/4] enviando credenciais...';
+    const email = ($('email').value || '').trim();
+    const password = $('password').value || '';
+    if (!email || !password) throw new Error('Preencha e-mail e senha.');
+
+    const resp = await supabaseClient.auth.signInWithPassword({ email, password });
+    if (resp.error) throw resp.error;
+    if (!resp.data?.session) throw new Error('Sem sessão na resposta.');
+
+    errorEl.style.color = '#059669';
+    errorEl.textContent = '[4/4] autenticado! abrindo painel...';
+    setTimeout(() => showApp(), 150);
   } catch (err) {
-    console.error('[login] erro:', err);
-    errorEl.textContent = err.message || 'Não foi possível entrar. Tente novamente.';
+    console.error('[login] erro completo:', err);
+    errorEl.style.color = '#DC2626';
+    errorEl.textContent = '❌ ' + (err.message || err.error_description || JSON.stringify(err));
   } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'Entrar';
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Entrar'; }
+    window.__loginInProgress = false;
   }
-});
+}
+
+// Triplo gatilho: submit do form + click no botão + Enter no campo de senha
+$('loginForm').addEventListener('submit', handleLogin);
+const loginBtn = document.querySelector('#loginForm button[type="submit"]');
+if (loginBtn) loginBtn.addEventListener('click', handleLogin);
+$('password').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleLogin(e); });
 
 $('logoutBtn').addEventListener('click', async () => {
   await supabaseClient.auth.signOut();
