@@ -31,9 +31,9 @@ function showLogin() {
 function showApp() {
   $('loginScreen').hidden = true;
   $('adminApp').hidden = false;
-  loadPedidos();
-  loadProdutos();
-  subscribeRealtime();
+  try { loadPedidos(); } catch (e) { console.warn('[pedidos]', e); }
+  try { loadProdutos(); } catch (e) { console.warn('[produtos]', e); }
+  try { subscribeRealtime(); } catch (e) { console.warn('[realtime]', e); }
 }
 
 $('loginForm').addEventListener('submit', async (e) => {
@@ -149,14 +149,20 @@ function renderPedidos() {
   });
 }
 
+let realtimeChannel = null;
 function subscribeRealtime() {
-  supabaseClient
-    .channel('pedidos-realtime')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'pedidos' }, () => {
-      loadPedidos();
-      try { new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQQAAAAA').play(); } catch(e){}
-    })
-    .subscribe();
+  try {
+    if (realtimeChannel) return; // já inscrito nesta sessão
+    realtimeChannel = supabaseClient
+      .channel('pedidos-realtime-' + Date.now())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'pedidos' }, () => {
+        loadPedidos();
+        try { new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQQAAAAA').play(); } catch(e){}
+      })
+      .subscribe();
+  } catch (e) {
+    console.warn('[realtime] não foi possível inscrever:', e);
+  }
 }
 
 // ---------- Produtos ----------
