@@ -8,7 +8,7 @@
    Depois, substitua os dois valores abaixo.
    ============================================================ */
 
-const SUPABASE_URL = 'https://weybrfvxbfjzrsktlnwe.supabase.co/rest/v1/';
+const SUPABASE_URL = 'https://weybrfvxbfjzrsktlnwe.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndleWJyZnZ4YmZqenJza3RsbndlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NDU3MjEsImV4cCI6MjA5MjIyMTcyMX0.TOIIPbS0_JSZ75qx2OiVslHFtag9sogV8gSgWCReSTQ';
 
 // Não mexer daqui para baixo 👇
